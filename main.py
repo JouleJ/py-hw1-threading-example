@@ -3,27 +3,34 @@ import threading
 cv = threading.Condition()
 current_value = 1
 
-def thread_function(i, n):
+
+def thread_function(expected_val, actions_num):
     global cv
     global current_value
 
-    for j in range(n):
+    for j in range(actions_num):
         with cv:
-            cv.wait_for(lambda: current_value == i)
-            print(i, end='')
+            cv.wait_for(lambda: current_value == expected_val)
+            print(expected_val, end='')
             current_value = 1 + current_value % 3
             cv.notify_all()
 
-n = int(input())
 
-threads = [
-    threading.Thread(target=thread_function, args=(1, n)),
-    threading.Thread(target=thread_function, args=(2, n)),
-    threading.Thread(target=thread_function, args=(3, n)),
-]
+def main():
+    actions_num = int(input())
 
-for thread in threads:
-    thread.start()
+    threads = [
+        threading.Thread(target=thread_function, args=(1, actions_num)),
+        threading.Thread(target=thread_function, args=(2, actions_num)),
+        threading.Thread(target=thread_function, args=(3, actions_num)),
+    ]
 
-for thread in threads:
-    thread.join()
+    for thread in threads:
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+
+if __name__ == "__main__":
+    main()
